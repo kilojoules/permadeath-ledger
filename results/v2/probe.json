@@ -1,0 +1,173 @@
+{
+ "aces_team": [
+  "Garchomp",
+  "Dragonite",
+  "Luxray"
+ ],
+ "survivors_team": [
+  "Floatzel",
+  "Venusaur",
+  "Donphan"
+ ],
+ "plan": [
+  {
+   "opponent": 4,
+   "team": [
+    "Garchomp",
+    "Dragonite",
+    "Luxray"
+   ]
+  },
+  {
+   "opponent": 5,
+   "team": [
+    "Garchomp",
+    "Dragonite",
+    "Luxray"
+   ]
+  },
+  {
+   "opponent": 4,
+   "team": [
+    "Floatzel",
+    "Venusaur",
+    "Donphan"
+   ]
+  },
+  {
+   "opponent": 5,
+   "team": [
+    "Floatzel",
+    "Venusaur",
+    "Donphan"
+   ]
+  }
+ ],
+ "levels": [
+  80,
+  85,
+  90,
+  95,
+  100
+ ],
+ "battles_per_cell": 20,
+ "rows": [
+  {
+   "level": 80,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 19,
+    "aces_t5": 9,
+    "surv_t4": 17,
+    "surv_t5": 20
+   },
+   "rates": {
+    "aces_t4": 0.95,
+    "aces_t5": 0.45,
+    "surv_t4": 0.85,
+    "surv_t5": 1.0
+   },
+   "failed": 0
+  },
+  {
+   "level": 85,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 20,
+    "aces_t5": 5,
+    "surv_t4": 11,
+    "surv_t5": 17
+   },
+   "rates": {
+    "aces_t4": 1.0,
+    "aces_t5": 0.25,
+    "surv_t4": 0.55,
+    "surv_t5": 0.85
+   },
+   "failed": 0
+  },
+  {
+   "level": 90,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 19,
+    "aces_t5": 2,
+    "surv_t4": 6,
+    "surv_t5": 13
+   },
+   "rates": {
+    "aces_t4": 0.95,
+    "aces_t5": 0.1,
+    "surv_t4": 0.3,
+    "surv_t5": 0.65
+   },
+   "failed": 0
+  },
+  {
+   "level": 95,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 20,
+    "aces_t5": 3,
+    "surv_t4": 1,
+    "surv_t5": 6
+   },
+   "rates": {
+    "aces_t4": 1.0,
+    "aces_t5": 0.15,
+    "surv_t4": 0.05,
+    "surv_t5": 0.3
+   },
+   "failed": 0
+  },
+  {
+   "level": 100,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 14,
+    "aces_t5": 0,
+    "surv_t4": 1,
+    "surv_t5": 1
+   },
+   "rates": {
+    "aces_t4": 0.7,
+    "aces_t5": 0.0,
+    "surv_t4": 0.05,
+    "surv_t5": 0.05
+   },
+   "failed": 0
+  }
+ ],
+ "decision": {
+  "level": 100,
+  "rule": "no level met the aces floor; largest margin (weak)",
+  "row": {
+   "level": 100,
+   "sessions_ok": 20,
+   "wins": {
+    "aces_t4": 14,
+    "aces_t5": 0,
+    "surv_t4": 1,
+    "surv_t5": 1
+   },
+   "rates": {
+    "aces_t4": 0.7,
+    "aces_t5": 0.0,
+    "surv_t4": 0.05,
+    "surv_t5": 0.05
+   },
+   "failed": 0
+  }
+ },
+ "base_levels": {
+  "ace": 100,
+  "avg": 100,
+  "opp": [
+   80,
+   85,
+   90,
+   100,
+   100
+  ]
+ }
+}

@@ -1,0 +1,14 @@
+# local toolchain (pinned versions are recorded in README/requirements; reinstall with setup.sh)
+.tools/
+.venv/
+showdown/node_modules/
+showdown/package-lock.json.bak
+# raw run data (JSONL event streams + simulator logs); aggregated results are committed under results/
+runs/
+# python cruft
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# secrets never live here
+*.pod

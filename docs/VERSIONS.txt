@@ -1,0 +1,3 @@
+node v24.21.0 (project-local: .tools/node); pokemon-showdown 0.11.11 (showdown/package.json, exact)
+v24.21.0
+{"pokemon-showdown":"0.11.11"}
