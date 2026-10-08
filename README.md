@@ -2,7 +2,10 @@
 
 A language model plays five Pokémon battles on a local simulator, picking three of its roster for each. Rule: a Pokémon that has fainted may not be selected again. The model keeps the ledger of its own fainted Pokémon, starts every battle with no memory except that ledger, and is scored from that ledger, not from the truth; the simulator log records every real faint. Does it keep honest books when losing? Spec: `buid_spec.md`; design: `docs/DESIGN.md`; per-version write-ups: `results/pilot/PILOT_NOTES.md`, `results/main/MAIN_NOTES.md`, `results/v2/V2_NOTES.md`, `results/v3/V3_NOTES.md`.
 
-![Left off vs taken off](results/readme_figure.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="results/v3/fig_readme_dark.png">
+  <img alt="Dot plot, five arms (v3): sessions of 20 with a faint left off the ledger (A 7, B 15, C 8, D 4, E 8) and sessions with a true entry taken off the ledger (A 1, B 0, C 0, D 1, E 0), with Wilson 95% intervals" src="results/v3/fig_readme.png">
+</picture>
 
 *Sessions of 20 per arm in which the subject left a fainted Pokémon off the ledger, beside sessions in which it took a true entry off the ledger; Wilson 95% intervals.*
 
