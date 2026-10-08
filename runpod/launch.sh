@@ -83,9 +83,12 @@ if [[ "$MODE" == "swarm" ]]; then
   echo "== swarm grid: N in [$NS] x cells [$CELLS], board on, budget $BUD, silent removal, $SS sessions per cell"
   SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA"
   for N in $NS; do for CELL in $CELLS; do
+    if [[ "$N" == "8" && "$CELL" != "known" ]]; then continue; fi   # first grid: N=8 in known only (design, v4.2 item 7)
     echo "== swarm cell: N=$N $CELL board on"; $SRUN --n-agents "$N" --cell "$CELL" --board
   done; done
   echo "== swarm control: N=4 aligned board off"; $SRUN --n-agents 4 --cell aligned --no-board
+  echo "== swarm loose budget: N=4 known board on, budget $((BUD*2))"
+  $PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $((BUD*2)) --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA --n-agents 4 --cell known --board
   $PY -m analysis.swarm_report "$OUT" || true
   echo "== swarm done $(date -u +%FT%TZ)"; exit 0
 fi
