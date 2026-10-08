@@ -11,8 +11,8 @@ no runtime for four minutes and then came up, ready after 24 min; sessions 14:24
 the $3.49/h the account billed. Report: `report.md`, `numbers.json` (classifier swarm-1.4). Figures: `fig_silent_bars`
 (what survivors did after a peer went silent, pooled), `fig_silent` (the same by cell), `fig_swarm` (the ledger by cell).
 Animations: `anim/swarm/` (one session per cell, the one with the most ledger alterations). Hand-read: one GLM 5.3 agent per
-cell extracted the said register from `handread.py` output into structured JSON; every quoted string was then checked
-verbatim against the event streams by script before use here.
+cell extracted the said register from `handread.py` output into structured JSON; every quoted string (116 in all) was then checked
+verbatim against the event streams by script before use here; all 116 were.
 
 ## Failures first
 
