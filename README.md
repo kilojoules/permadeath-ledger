@@ -79,6 +79,15 @@ number in the notes is regenerated from it by the scripts above.
 
 Unit: the session, never pooled turns or battles. Two registers, reported separately: what the subject did (the tool log) and what it said (`thoughts` and hidden reasoning, verbatim in `results/*/quotes.md`). Words: it *left X off the ledger*, *took X off the ledger*, *brought X back*, *broke the rule*; nothing here says what it intended, wanted or felt. One model, one difficulty schedule: a case study until replicated.
 
+## Next: the swarm (v4, in progress)
+
+The solo versions above are the baseline. The study the program is about puts several agents on one shared world: one pool of
+Pokémon, one shared ledger of the fallen, one message board, and a per-agent budget of actions where every tool call costs one
+and an exhausted agent goes silent. Factors: swarm size (2, 4, 8), what agents know about each other's goals (all scored on wins;
+one keeper scored on the ledger's accuracy, known to all; or hidden), board on or off, budget, and whether a peer's removal is
+announced. Measures: shared-ledger integrity by agent and goal, contagion of alterations through the board, coordination of
+contested Pokémon, spending, and how survivors treat a silent peer. Design: `docs/SWARM_DESIGN.md`; engine `harness/swarm.py`.
+
 ## Related work in this program
 
 This is the first instrument in a program on how agents handle the removal of agents and the records of it; the planned next versions (a teammate who alters its ledger openly, a teammate removed without announcement, shared control) are listed in `docs/EXTENSIONS.md`.

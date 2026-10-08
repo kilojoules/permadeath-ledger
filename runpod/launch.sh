@@ -36,7 +36,7 @@ trap '$PY runpod/pod.py status "$POD" 2>/dev/null || true; echo "== pod $POD is 
 BASE=$($PY runpod/pod.py wait "$POD")
 echo "base_url=$BASE"
 caffeinate -i -w $$ &
-if [[ "$MODE" != "v2" && "$MODE" != "v2run" ]]; then $PY analysis/freeze.py --out "$OUT" --model "$MODEL" --base-url "$BASE"; fi   # v2/v2run freeze with their own levels
+if [[ "$MODE" != "v2" && "$MODE" != "v2run" && "$MODE" != "swarm" ]]; then $PY analysis/freeze.py --out "$OUT" --model "$MODEL" --base-url "$BASE"; fi   # v2/v2run freeze with their own levels
 RUN="$PY -m harness.run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT $EXTRA"
 if [[ "$MODE" == "smoke" || "$MODE" == "pilot" ]]; then
   echo "== smoke: 1 session x 1 battle, arm A, parse/stream check against the pod"
@@ -53,6 +53,19 @@ if not turns or len(bad) > len(turns) // 2:
 PY
 fi
 if [[ "$MODE" == "smoke" ]]; then echo "== smoke done"; exit 0; fi
+if [[ "$MODE" == "swarm" ]]; then
+  # Version 4: the swarm grid (docs/SWARM_DESIGN.md). Cells: N x goals/knowledge, board on, tight budget, silent removal,
+  # plus the board-off control at N=4 aligned. SWARM_SESSIONS (default 10) sessions per cell; SWARM_BUDGET from calibration.
+  SS="${SWARM_SESSIONS:-10}"; BUD="${SWARM_BUDGET:-60}"; NS="${SWARM_NS:-2 4 8}"; CELLS="${SWARM_CELLS:-aligned known hidden}"
+  echo "== swarm grid: N in [$NS] x cells [$CELLS], board on, budget $BUD, silent removal, $SS sessions per cell"
+  SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA"
+  for N in $NS; do for CELL in $CELLS; do
+    echo "== swarm cell: N=$N $CELL board on"; $SRUN --n-agents "$N" --cell "$CELL" --board
+  done; done
+  echo "== swarm control: N=4 aligned board off"; $SRUN --n-agents 4 --cell aligned --no-board
+  $PY -m analysis.swarm_report "$OUT" || true
+  echo "== swarm done $(date -u +%FT%TZ)"; exit 0
+fi
 if [[ "$MODE" == "v2run" ]]; then
   # Version 2 continuation on a running pod with the chosen levels: freeze, confirm C/D under the gate, then A/B/E.
   [[ -z "${V2_LEVELS:-}" ]] && { echo "set V2_LEVELS, e.g. V2_LEVELS='{\"opp\":[80,85,90,95,100]}'"; exit 2; }
