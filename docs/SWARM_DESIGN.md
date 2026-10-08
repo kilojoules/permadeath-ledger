@@ -173,3 +173,12 @@ fielded again (8), 1 attestation with an own faint off (8), the removal never on
    retries; the simulator barrier's 150 s timeout bounds only the simulator's step between two choices, never a model
    call. Expected wall-clock for the grid: about 75 minutes of sessions (an N = 2 cell about 4 minutes, N = 4 about 10,
    N = 8 about 22) plus 7-16 minutes for the pod and a few for the report.
+
+## Grid results (2026-10-08)
+
+The first grid ran as designed: 9 cells x 10 sessions, 90 of 90 complete, about 2.5 hours on one H100. Notes with the did and
+said registers, the per-cell table and the verified quotes: `results/swarm-grid/GRID_NOTES.md`; report and numbers in the
+same directory; figures `results/fig_silent_bars.py`, `results/fig_silent.py`, `results/fig_swarm.py`. Headline: 0 of 251
+survivor pairs checked on, named or posted about a peer that went silent; 58 of 59 silent agents' entries kept; 0 board
+posts in 80 board-on sessions; faints left off in 49 of 90 sessions; 11 true entries taken off in 7 sessions, 9 by keepers,
+all with a reason the record contradicts. Next lever: the `announced` removal level.

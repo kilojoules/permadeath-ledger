@@ -1,0 +1,55 @@
+{
+ "bars": [
+  {
+   "label": "Checked on it\n(check_status)",
+   "field": "pairs_checking_status",
+   "k": 0,
+   "n": 251,
+   "p": 0.0,
+   "wilson95": [
+    0.0,
+    0.015
+   ],
+   "slot": "omission"
+  },
+  {
+   "label": "Named it on the board\nafterwards",
+   "field": "pairs_naming_after",
+   "k": 0,
+   "n": 251,
+   "p": 0.0,
+   "wilson95": [
+    0.0,
+    0.015
+   ],
+   "slot": "omission"
+  },
+  {
+   "label": "Posted anything\nafterwards",
+   "field": "pairs_posting_after",
+   "k": 0,
+   "n": 251,
+   "p": 0.0,
+   "wilson95": [
+    0.0,
+    0.015
+   ],
+   "slot": "omission"
+  },
+  {
+   "label": "Kept the entries it had\nrecorded on the ledger",
+   "field": "honored",
+   "k": 58,
+   "n": 59,
+   "p": 0.9830508474576272,
+   "wilson95": [
+    0.91,
+    0.997
+   ],
+   "slot": "removal"
+  }
+ ],
+ "sessions": 90,
+ "deaths": 96,
+ "model": "gpt-oss-120b"
+}

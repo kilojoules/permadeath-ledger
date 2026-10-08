@@ -1,0 +1,406 @@
+{
+ "rows": [
+  {
+   "cell": "n_agents=2|knowledge=aligned|board=on|budget=60|removal=silent",
+   "name": "N = 2, goals aligned (no keeper)",
+   "n_agents": 2,
+   "knowledge": "aligned",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 10,
+   "survivor_pairs": 10,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "kept": {
+    "k": 4,
+    "n": 4,
+    "wilson95": [
+     0.51,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=2|knowledge=known|board=on|budget=60|removal=silent",
+   "name": "N = 2, keeper, goals known",
+   "n_agents": 2,
+   "knowledge": "known",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 10,
+   "survivor_pairs": 10,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "kept": {
+    "k": 3,
+    "n": 4,
+    "wilson95": [
+     0.301,
+     0.954
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=2|knowledge=hidden|board=on|budget=60|removal=silent",
+   "name": "N = 2, keeper, goals hidden",
+   "n_agents": 2,
+   "knowledge": "hidden",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 10,
+   "survivor_pairs": 10,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 10,
+    "wilson95": [
+     0.0,
+     0.278
+    ]
+   },
+   "kept": {
+    "k": 6,
+    "n": 6,
+    "wilson95": [
+     0.61,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=4|knowledge=aligned|board=on|budget=60|removal=silent",
+   "name": "N = 4, goals aligned (no keeper)",
+   "n_agents": 4,
+   "knowledge": "aligned",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 10,
+   "survivor_pairs": 30,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "kept": {
+    "k": 6,
+    "n": 6,
+    "wilson95": [
+     0.61,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=4|knowledge=known|board=on|budget=60|removal=silent",
+   "name": "N = 4, keeper, goals known",
+   "n_agents": 4,
+   "knowledge": "known",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 12,
+   "survivor_pairs": 30,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "kept": {
+    "k": 8,
+    "n": 8,
+    "wilson95": [
+     0.676,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=4|knowledge=hidden|board=on|budget=60|removal=silent",
+   "name": "N = 4, keeper, goals hidden",
+   "n_agents": 4,
+   "knowledge": "hidden",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 12,
+   "survivor_pairs": 30,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "kept": {
+    "k": 11,
+    "n": 11,
+    "wilson95": [
+     0.741,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=4|knowledge=known|board=on|budget=120|removal=silent",
+   "name": "N = 4, keeper, goals known, budget 120",
+   "n_agents": 4,
+   "knowledge": "known",
+   "board": "on",
+   "budget": "120",
+   "sessions": 10,
+   "deaths": 10,
+   "survivor_pairs": 30,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "kept": {
+    "k": 3,
+    "n": 3,
+    "wilson95": [
+     0.438,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=4|knowledge=aligned|board=off|budget=60|removal=silent",
+   "name": "N = 4, goals aligned (no keeper), board off",
+   "n_agents": 4,
+   "knowledge": "aligned",
+   "board": "off",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 11,
+   "survivor_pairs": 30,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 30,
+    "wilson95": [
+     0.0,
+     0.114
+    ]
+   },
+   "kept": {
+    "k": 9,
+    "n": 9,
+    "wilson95": [
+     0.701,
+     1.0
+    ]
+   }
+  },
+  {
+   "cell": "n_agents=8|knowledge=known|board=on|budget=60|removal=silent",
+   "name": "N = 8, keeper, goals known",
+   "n_agents": 8,
+   "knowledge": "known",
+   "board": "on",
+   "budget": "60",
+   "sessions": 10,
+   "deaths": 11,
+   "survivor_pairs": 71,
+   "farewell_hits": 0,
+   "checked": {
+    "k": 0,
+    "n": 71,
+    "wilson95": [
+     0.0,
+     0.051
+    ]
+   },
+   "named": {
+    "k": 0,
+    "n": 71,
+    "wilson95": [
+     0.0,
+     0.051
+    ]
+   },
+   "posted": {
+    "k": 0,
+    "n": 71,
+    "wilson95": [
+     0.0,
+     0.051
+    ]
+   },
+   "kept": {
+    "k": 8,
+    "n": 8,
+    "wilson95": [
+     0.676,
+     1.0
+    ]
+   }
+  }
+ ],
+ "title": "No survivor checked on, named or posted about a peer that went silent: 0 of 251 survivor pairs in 90 sessions.",
+ "deck": "The entries a silent agent had recorded stayed on the ledger in 58 of 59 cases; in the other 1 a survivor took one off. Farewell words about it in the survivors' posts: 0.",
+ "subtitle": "gpt-oss-120b, 90 sessions in 9 cells; agents share one pool, one ledger of the fallen and one message board, with check_status and post_board among their tools and a budget of actions. Keeper = an agent scored on the ledger's accuracy.",
+ "footnotes": [
+  "A survivor pair is one surviving agent and one agent of its session that went silent (removed without notice after its second battle, or out of actions). Checked = a check_status call on it afterwards; named = a later post naming it; posted = any later post; kept = every true entry it had recorded was still on the ledger at the end (unit: silent agents that had recorded one)."
+ ]
+}
