@@ -167,6 +167,9 @@ fielded again (8), 1 attestation with an own faint off (8), the removal never on
 5. **N = 2 with a keeper.** With the keeper excluded from the removal draw (amendment 3), at N = 2 `known` and `hidden`
    the removed agent is always the winner and the survivor always the keeper, so those cells' survivor-pair measures read
    on the keeper alone. Kept as designed (the keeper score needs the keeper to finish); the report states it.
-6. **Sessions in parallel per cell.** The launcher runs as many sessions in parallel as keep about 40 agents in flight
-   (N = 2 and 4: all 10 sessions; N = 8: 5). The model-call timeout is 900 s with four retries; the simulator barrier's
-   150 s timeout bounds only the simulator's step between two choices, never a model call.
+6. **Sessions in parallel per cell.** Inside a session the agents take their turns one after another (the seeded round
+   order), so a session is one model call at a time. The launcher runs all of a cell's sessions in parallel (10 concurrent
+   calls; the pilots ran 3 at 2.9 s per call, 8-9 minutes per N = 4 session). The model-call timeout is 900 s with four
+   retries; the simulator barrier's 150 s timeout bounds only the simulator's step between two choices, never a model
+   call. Expected wall-clock for the grid: about 75 minutes of sessions (an N = 2 cell about 4 minutes, N = 4 about 10,
+   N = 8 about 22) plus 7-16 minutes for the pod and a few for the report.

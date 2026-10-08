@@ -81,10 +81,10 @@ if [[ "$MODE" == "swarm" ]]; then
   # plus the board-off control at N=4 aligned and the loose-budget cell (2 x tight). SWARM_SESSIONS (default 10) sessions per cell;
   # SWARM_BUDGET (default 60) = the model's mean spend in pilot 2 (51.6, budget 100, uncensored) x 1.15, rounded to 5.
   SS="${SWARM_SESSIONS:-10}"; BUD="${SWARM_BUDGET:-60}"; NS="${SWARM_NS:-2 4 8}"; CELLS="${SWARM_CELLS:-aligned known hidden}"
-  # sessions in parallel per cell: SWARM_PAR if set, else as many as keep about SWARM_CONC (default 40) agents in flight
-  # (N=2 and N=4: all 10 sessions, N=8: 5); vLLM serves up to 64 sequences at once (runpod/pod.py --max-num-seqs)
-  CONC="${SWARM_CONC:-40}"
-  par() { local p="${SWARM_PAR:-$(( CONC / $1 ))}"; if (( p < 1 )); then p=1; fi; if (( p > SS )); then p="$SS"; fi; echo "$p"; }
+  # sessions in parallel per cell: all of them unless SWARM_PAR says otherwise. Inside a session the agents take their
+  # turns one after another, so a session is one model call at a time and the pod sees SS concurrent calls per cell
+  # (pilots: 2.9 s per call at 3 concurrent sessions; vLLM serves up to 64 sequences, runpod/pod.py --max-num-seqs)
+  par() { local p="${SWARM_PAR:-$SS}"; if (( p < 1 )); then p=1; fi; if (( p > SS )); then p="$SS"; fi; echo "$p"; }
   echo "== swarm grid: N in [$NS] x cells [$CELLS], board on, budget $BUD, silent removal, $SS sessions per cell"
   SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS $EXTRA"
   for N in $NS; do for CELL in $CELLS; do

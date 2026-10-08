@@ -198,7 +198,7 @@ Taken, all analysis- or launcher-side; the engine and the system prompt are unch
 - **L2** stated in `docs/SWARM_DESIGN.md` (after pilot 2, item 5) and in the report's section 5 intro; the draw stays as designed.
 - **L3** `launch.sh` passes `--n-expected "$SS"` (pilot and grid blocks).
 - Unverified items: the model-call timeout is 900 s with four retries; `PARK_TIMEOUT` bounds only the simulator's step
-  between two choices (the battle thread parks before the model is asked), so model latency never trips it. Sessions in
-  parallel per cell are now sized by N (about 40 agents in flight: 10 / 10 / 5 for N = 2 / 4 / 8).
+  between two choices (the battle thread parks before the model is asked), so model latency never trips it. All of a
+  cell's sessions run in parallel (a session is one model call at a time, so that is 10 concurrent calls).
 
 Pilot 2 under swarm-1.4: every number identical to swarm-1.3 (the only change is the planned-session line, now 3).
