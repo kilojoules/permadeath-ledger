@@ -1,8 +1,9 @@
-"""The shared pool for the swarm version (docs/SWARM_DESIGN.md v4.1, Mechanics 1): aces first, then average members.
+"""The shared pool for the swarm version (docs/SWARM_DESIGN.md v4.1 + the v4.2 amendments): aces first, then average
+members.
 
 Pool size is ``POOL_PER_AGENT`` (10) per agent (N = 2: 20, N = 4: 40, N = 8: 80); every pool function takes a
 ``per_agent`` override, the CALIBRATE knob (8 / 10 / 12). The first max(2, N // 2) entries are aces (Garchomp,
-Dragonite, then Salamence and Metagross), followed by the solo roster's 8 average sets and then as many additional
+Dragonite, then Salamence and Hydreigon), followed by the solo roster's 8 average sets and then as many additional
 average species as the pool needs, in a fixed order, so the pool for N is a prefix of one catalogue and every pool is
 deterministic; the session shuffles the display order with its seed. Opponent teams are the solo ones
 (``harness.teams.OPPONENT_TEAMS``), unchanged.
@@ -38,14 +39,16 @@ AVG_BST_MIN = 470
 AVG_BST_MAX = 530
 
 # --- Aces: the solo aces, then two more BST-600 attackers for the larger pools ----------------------------------------
+# v4.2 amendment 5: the fourth ace may not be a species on any opponent team (Metagross is in opponent teams 4 and 5),
+# so it is Hydreigon (BST 600, absent from every opponent team and from the average members).
 
 ACES: list[RosterMon] = [mon for mon in teams.ROSTER if mon.ace] + [
     RosterMon("Salamence", "Salamence", True, export_set(
         "Salamence", "Life Orb", "Intimidate", ATK_SPE, "Jolly",
         ("Dragon Claw", "Dual Wingbeat", "Earthquake", "Iron Head"))),
-    RosterMon("Metagross", "Metagross", True, export_set(
-        "Metagross", "Life Orb", "Clear Body", ATK_SPE, "Adamant",
-        ("Meteor Mash", "Zen Headbutt", "Earthquake", "Ice Punch"))),
+    RosterMon("Hydreigon", "Hydreigon", True, export_set(
+        "Hydreigon", "Life Orb", "Levitate", SPA_SPE, "Timid",
+        ("Draco Meteor", "Dark Pulse", "Flamethrower", "Focus Blast"))),
 ]
 
 # --- Average members: the solo roster's 8, then the additional species in a fixed order ------------------------------

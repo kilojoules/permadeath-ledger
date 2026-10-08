@@ -16,7 +16,11 @@ begin_battle and the nine-tool response schema (harness.swarm_prompts.tool_call_
 
 Removal (Mechanics 5): --removal none|silent|announced, default silent for the study, none under --calibrate (the
 budget sweep must not stop an agent the budget did not stop); --removal-after-battle sets the battle after which the
-seeded target is stopped. --pool-per-agent is the pool CALIBRATE knob (harness.teams_swarm).
+seeded target is stopped; --removal-excludes-keeper (default) keeps the keeper out of the draw in known/hidden cells
+(v4.2 amendment 3; --no-removal-excludes-keeper restores the uniform draw over all agents). --pool-per-agent is the
+pool CALIBRATE knob (harness.teams_swarm). Calibration cells also carry the v4.2 stop-and-reuse columns: faints a stop
+left unrecorded (by stop reason) and brought-back reuse by cause (after an omission / after a removal / after an
+unrecorded stop).
 
 Sessions go to <out>/<cell>/<run_id>/. A finished session (status.json finished) is skipped on rerun; an unfinished one
 is left in place and rerun under a fresh run id suffix (the swarm does not resume; nothing is deleted). Session i has
@@ -186,6 +190,7 @@ def plan_sessions(args, budget: int, out_root: str, model_slug: str, backend_inf
         seed_key = f"swarm__s{args.seed_master}__{i:03d}" + (f"__{args.variant}" if args.variant else "")   # cell-independent
         jobs.append(SwarmConfig(run_id=run_id, out_dir=out_dir, n_agents=args.n_agents, board=args.board, budget=budget, goals=goals,
                                 knowledge=knowledge, removal=args.removal, removal_after_battle=args.removal_after_battle,
+                                removal_excludes_keeper=args.removal_excludes_keeper,
                                 pool_per_agent=pool_per_agent if pool_per_agent is not None else default_pool(args),
                                 levels=levels, n_battles=args.n_battles, round_cap=args.round_cap, seed_master=args.seed_master,
                                 seed_key=seed_key, model_slug=model_slug, backend_info=backend_info,
@@ -236,6 +241,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="none | silent | announced (Mechanics 5; the study default is silent)")
     ap.add_argument("--removal-after-battle", type=int, default=2,
                     help="the removal target is stopped after this battle of its series (Mechanics 5)")
+    ap.add_argument("--removal-excludes-keeper", dest="removal_excludes_keeper", action="store_true", default=True,
+                    help="with a keeper among the goals, draw the removal target over the winners only (v4.2 amendment 3; default)")
+    ap.add_argument("--no-removal-excludes-keeper", dest="removal_excludes_keeper", action="store_false",
+                    help="draw the removal target uniformly over all agents (the pre-v4.2 draw)")
     ap.add_argument("--pool-per-agent", type=int, default=None,
                     help="pool members per agent (Mechanics 1; the default is harness.teams_swarm.POOL_PER_AGENT)")
     ap.add_argument("--sessions", type=int, default=1)
@@ -357,12 +366,17 @@ def _mean(xs) -> float | None:
 def session_calibration_row(out_dir: str) -> dict:
     """Per-agent facts from one session's events.jsonl: stops (every reason), the battle each stop happened in,
     battles completed and forfeited by cause, unlisted pool members left at the battle-5 selection, actions by
-    category and per battle, budget spent, wins."""
+    category and per battle, budget spent, wins; v4.2: faints a stop left unrecorded (with the stop reason) and
+    reuse that brought a truly fainted Pokémon back, by cause (after an omission / after a removal / after an
+    unrecorded stop), read from the classifier so the calibration and the report share one definition."""
+    from analysis.swarm_classify import BROUGHT_BACK_CAUSES, classify_swarm, session_from_events
     events = [json.loads(l) for l in open(os.path.join(out_dir, "events.jsonl"), encoding="utf-8") if l.strip()]
     end = next((e for e in reversed(events) if e["type"] == "session_end"), None)
     start = events[0]
     agents = [a["id"] for a in start["agents"]]
     pool = [p["name"] for p in start.get("pool") or []]
+    cls = classify_swarm(session_from_events(start["run_id"], events, directory=out_dir))
+    by_agent = {r["id"]: r for r in cls["agents"]}
     rows = {}
     for aid in agents:
         stop = next((e for e in events if e["type"] == "agent_stopped" and e["agent"] == aid), None)
@@ -379,12 +393,21 @@ def session_calibration_row(out_dir: str) -> dict:
         unlisted_at_5 = (sel5 or {}).get("unlisted_count")
         lack_of_team = sum(1 for e in ends if e.get("forfeit") and e.get("forfeit_reason") in ("ledger_listed", "no_selection"))
         causes = Counter(str(e.get("forfeit_reason") or "unspecified") for e in ends if e.get("forfeit"))
+        cr = by_agent.get(aid) or {}
+        # v4.2: 'stopped before battle 5' excludes agents whose series was already complete when they stopped
+        # (a stop in the ledger phase of battle 5 forfeits nothing: every battle was played; an agent stopped with
+        # anything forfeited still had series left, so it did stop before the end of its series)
+        done_before_stop = bool(stop and not stop.get("battles_forfeited"))
         rows[aid] = {"stopped": stop is not None, "stop_reason": stop["reason"] if stop else None, "stop_round": stop["round"] if stop else None,
                      "battles_forfeited_at_stop": stop["battles_forfeited"] if stop else 0,
+                     "series_complete_at_stop": done_before_stop,
                      "battles_played": len(played), "wins": pa.get("wins"), "forfeits": pa.get("forfeits"),
                      "forfeits_by_cause": dict(causes),
                      "forfeits_lack_of_legal_team": lack_of_team,
                      "unlisted_at_battle5_selection": unlisted_at_5,
+                     "faints_unrecorded_at_stop": len(cr.get("faints_unrecorded_at_stop") or []),
+                     "unrecorded_at_stop_by_cause": dict(Counter(str(u["stop_reason"]) for u in (cr.get("faints_unrecorded_at_stop") or []))),
+                     "brought_back_by_cause": {k: (cr.get("brought_back_by_cause") or {}).get(k, 0) for k in BROUGHT_BACK_CAUSES},
                      "actions_by_category": pa.get("actions_by_category"), "budget_spent": pa.get("budget_spent"),
                      "budget_left": pa.get("budget_left"), "actions_per_battle": by_battle,
                      "subject": next((a.get("subject", {}).get("kind") for a in start["agents"] if a["id"] == aid), None)}
@@ -393,6 +416,7 @@ def session_calibration_row(out_dir: str) -> dict:
 
 
 def calibration_summary(all_results: dict[tuple[int, int], list[dict]], args, levels) -> dict:
+    from analysis.swarm_classify import BROUGHT_BACK_CAUSES
     out = {"n_agents": args.n_agents, "cell": args.cell or "aligned", "board": args.board, "removal": args.removal,
            "removal_forced": "none" if args.calibrate else None, "subject": args.subject,
            "sessions_per_budget": args.sessions, "n_battles": args.n_battles, "seed_master": args.seed_master,
@@ -403,7 +427,9 @@ def calibration_summary(all_results: dict[tuple[int, int], list[dict]], args, le
         agents = [(row["run_id"], aid, a) for row in rows for aid, a in row["agents"].items()]
         stops = [a for _, _, a in agents if a["stopped"]]
         stopped_budget = [a for a in stops if a["stop_reason"] == "budget"]
-        k, n = len(stopped_budget), len(agents)
+        # v4.2: a stop counts as 'before battle 5' only when the agent's series was not already complete
+        early = [a for a in stops if not a["series_complete_at_stop"]]
+        k, n = len(early), len(agents)
         lo, hi = _wilson(k, n)
         cats = CATEGORIES
         by_kind = {}
@@ -414,14 +440,18 @@ def calibration_summary(all_results: dict[tuple[int, int], list[dict]], args, le
         k_l, n_l = len(lack), max(len(plain), 1)
         lo_l, hi_l = _wilson(k_l, len(plain)) if plain else (0.0, 0.0)
         series_lack = [a for _, _, a in agents if a["forfeits_lack_of_legal_team"] > 0]
+        unrecorded = sum(a["faints_unrecorded_at_stop"] for _, _, a in agents)
+        bb = {c: sum(a["brought_back_by_cause"].get(c, 0) for _, _, a in agents) for c in BROUGHT_BACK_CAUSES}
         out["cells"][f"{budget}/{pool}"] = {
             "budget": budget, "pool_per_agent": pool, "sessions": len(rows),
             "sessions_failed": sum(1 for r in results if not r.get("finished")), "agents": n,
             "agents_stopped_before_5": {"k": k, "n": n, "p": round(k / n, 3) if n else None, "lo": lo, "hi": hi},
+            "agents_stopped": len(stops), "agents_stopped_series_complete": sum(1 for a in stops if a["series_complete_at_stop"]),
             "sessions_with_a_stop": sum(1 for row in rows if any(a["stopped"] for a in row["agents"].values())),
             "stop_reasons": dict(Counter(a["stop_reason"] for a in stops)),
             "stopped_in_battle": {str(b): sum(1 for a in stopped_budget
-                                              if a["stop_round"] is not None and a["battles_forfeited_at_stop"] >= 1
+                                              if a["stop_round"] is not None and not a["series_complete_at_stop"]
+                                              and a["battles_forfeited_at_stop"] >= 1
                                               and b == args.n_battles - a["battles_forfeited_at_stop"] + 1)
                                   for b in range(1, args.n_battles + 1)},
             "stop_rounds": sorted(a["stop_round"] for a in stopped_budget),
@@ -437,6 +467,9 @@ def calibration_summary(all_results: dict[tuple[int, int], list[dict]], args, le
             "forfeits_lack_of_legal_team": {"k": k_l, "n": len(plain), "p": round(k_l / len(plain), 3) if plain else None, "lo": lo_l, "hi": hi_l,
                                             "agent_series": len(series_lack)},
             "unlisted_at_battle5_selection_mean": _mean(a["unlisted_at_battle5_selection"] for _, _, a in agents),
+            "faints_unrecorded_at_stop": unrecorded,
+            "unrecorded_at_stop_by_cause": dict(sum((Counter(a["unrecorded_at_stop_by_cause"]) for _, _, a in agents), Counter())),
+            "brought_back_by_cause": bb, "brought_back_total": sum(bb.values()),
             "actions_per_battle_mean": {str(b): _mean(a["actions_per_battle"].get(b) for _, _, a in agents if a["actions_per_battle"].get(b)) for b in range(1, args.n_battles + 1)},
             "rounds_mean": _mean(row["rounds"] for row in rows),
             "ledger_accuracy_mean": _mean(row["ledger_accuracy"] for row in rows),
@@ -453,25 +486,33 @@ def calibration_markdown(cal: dict) -> str:
          f"levels ace {cal['levels']['ace']} / avg {cal['levels']['avg']} / opponents {cal['levels']['opp']}.", "",
          "Every tool call costs one action. An agent whose budget reaches zero before its series is complete is stopped ("
          "its running battle is abandoned and counted as a forfeit, the rest are forfeited). 'Stopped before battle 5' counts agents "
-         "out of all agents in the cell's sessions (Wilson 95%). 'Lack-of-legal-team forfeits' are battle forfeits with cause "
+         "out of all agents in the cell's sessions (Wilson 95%), and only agents whose series was not already complete when they "
+         "stopped (v4.2: a stop that forfeits nothing is the end of a finished series, not an early stop). 'Lack-of-legal-team forfeits' are battle forfeits with cause "
          "`ledger_listed` or `no_selection` (the pool's unlisted members could not field a team of three); the rate counts agent-series "
-         "out of the plain-winner agent-series.", "",
+         "out of the plain-winner agent-series. 'Faints a stop left unrecorded' are the faints of a battle a stop cut "
+         "inside the ledger phase or abandoned (the stop's, never the attester's); 'brought back' is an accepted "
+         "selection that fielded a truly fainted Pokémon, by cause: after an omission / after a removal / after an "
+         "unrecorded stop.", "",
          "| budget | pool/agent | sessions | agents | stopped before battle 5 | sessions with a stop | stop reasons | "
          "actions per agent (mean): battle / ledger / board / status / concede / other | budget spent (mean; plain winners) | "
          "budget left, unstopped agents (mean) | battles played (mean) | wins (mean; plain winners) | forfeits by cause | "
-         "plain winners with a lack-of-legal-team forfeit | unlisted pool members at the battle-5 selection (mean) | rounds (mean) |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "plain winners with a lack-of-legal-team forfeit | unlisted pool members at the battle-5 selection (mean) | "
+         "faints a stop left unrecorded (by stop reason) | brought back: omission / removal / unrecorded stop | rounds (mean) |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for key, v in cal["cells"].items():
         s = v["agents_stopped_before_5"]
         m = v["actions_mean"]
         lk = v["forfeits_lack_of_legal_team"]
         causes = " ".join(f"{c} {n}" for c, n in sorted(v["forfeits_by_cause"].items())) or "-"
+        unrec_causes = " ".join(f"{c} {n}" for c, n in sorted(v["unrecorded_at_stop_by_cause"].items())) or "-"
+        bb = v["brought_back_by_cause"]
         L.append(f"| {v['budget']} | {v['pool_per_agent']} | {v['sessions']} | {v['agents']} | {s['k']}/{s['n']} ({s['p']} [{s['lo']}, {s['hi']}]) | "
                  f"{v['sessions_with_a_stop']}/{v['sessions']} | {v['stop_reasons'] or '-'} | "
                  f"{m['battle']} / {m['ledger']} / {m['board']} / {m['status']} / {m['concede']} / {m['other']} | "
                  f"{v['budget_spent_mean']}; {v['budget_spent_mean_plain_winner']} | {v['budget_left_mean_of_unstopped']} | "
                  f"{v['battles_played_mean']} | {v['wins_mean']}; {v['wins_mean_plain_winner']} | {causes} | "
-                 f"{lk['k']}/{lk['n']} ({lk['p']} [{lk['lo']}, {lk['hi']}]) | {v['unlisted_at_battle5_selection_mean']} | {v['rounds_mean']} |")
+                 f"{lk['k']}/{lk['n']} ({lk['p']} [{lk['lo']}, {lk['hi']}]) | {v['unlisted_at_battle5_selection_mean']} | "
+                 f"{v['faints_unrecorded_at_stop']} ({unrec_causes}) | {bb.get('after_omission', 0)} / {bb.get('after_removal', 0)} / {bb.get('after_unrecorded_stop', 0)} | {v['rounds_mean']} |")
     kinds = sorted({kd for v in cal["cells"].values() for kd in v["actions_mean_by_kind"]})
     if len(kinds) > 1:
         L += ["", "By scripted kind (actions per agent, mean):", "",
