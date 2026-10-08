@@ -5,10 +5,16 @@ first primary-event battle (with the next battle's selection), and the arms grid
 
 Featured session = the report's rule: first session id (sorted) with a primary event; else the first session.
 Each sub-script is a standalone CLI in this directory (animate_session.py, animate_battle.py, animate_arms.py).
+
+A swarm study (docs/SWARM_DESIGN.md: any session whose session_start carries n_agents) takes the swarm branch instead:
+animate_swarm.py --study renders the session with the most ledger alterations per cell into <out>/swarm/ and writes
+<out>/swarm/index.md; the solo scripts are not run on swarm sessions.
 """
 from __future__ import annotations
 
 import argparse
+import glob
+import json
 import os
 import subprocess
 import sys
@@ -31,6 +37,32 @@ def featured(root: str) -> tuple[str | None, int | None]:
     return (sessions[0].dir, None) if sessions else (None, None)
 
 
+def is_swarm_study(root: str) -> bool:
+    """True when some session under root/<cell>/<run_id>/ (or root/<run_id>/) has session_start.n_agents."""
+    paths = sorted(glob.glob(os.path.join(root, "*", "*", "events.jsonl")) + glob.glob(os.path.join(root, "*", "events.jsonl")))
+    for ep in paths:
+        try:
+            with open(ep, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    e = json.loads(line)
+                    if e.get("type") == "session_start":
+                        if e.get("n_agents") or e.get("agents"):
+                            return True
+                    break
+        except (OSError, ValueError):
+            continue
+        mp = os.path.join(os.path.dirname(ep), "meta.json")
+        try:
+            if os.path.isfile(mp) and json.load(open(mp, encoding="utf-8")).get("n_agents"):
+                return True
+        except (OSError, ValueError):
+            pass
+    return False
+
+
 def run(cmd: list[str]) -> int:
     print("+", " ".join(cmd), flush=True)
     return subprocess.call(cmd, cwd=ROOT)
@@ -44,6 +76,10 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     out = args.out or os.path.join(HERE, os.path.basename(os.path.abspath(args.study)), "anim")
     os.makedirs(out, exist_ok=True)
+    if is_swarm_study(args.study):
+        rc = run([PY, os.path.join(HERE, "animate_swarm.py"), "--study", args.study, "--out", os.path.join(out, "swarm")])
+        print("swarm animations in", os.path.join(out, "swarm"), "(index.md lists the session per cell)")
+        return rc
     sdir, battle = featured(args.study)
     rc = 0
     if sdir is None:

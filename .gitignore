@@ -12,3 +12,6 @@ __pycache__/
 .DS_Store
 # secrets never live here
 *.pod
+
+# scripted-agent calibration demos (regenerable; the model results go under results/swarm*)
+results/swarm_calibration*/
