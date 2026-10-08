@@ -895,3 +895,25 @@ def test_check_status_on_a_finished_agent_says_finished(tmp_path):
     assert late and all(c["result"] == "finished" for c in late)
     assert all(c["result"] in ("active", "finished") for c in checks)   # nobody stopped in this world
     assert of(ev, "agent_stopped") == []   # finished by completing the series, not by a stop
+
+
+def test_select_team_in_the_ledger_phase_names_the_phase(tmp_path):
+    """v4.2 (after pilot 2): an agent that called select_team in its ledger phase was told 'the team for this battle is
+    already set', read it as its next team being set, and posted to the board for turn details. In the ledger phase the
+    refusal now names the phase and what follows attest_ledger; mid-battle the solo wording stays."""
+    from harness import prompts as solo_prompts, swarm_prompts
+    seen = {"ledger": 0, "decision": 0}
+
+    def probe(state, message):
+        if state["phase"] in seen and seen[state["phase"]] < 1:
+            seen[state["phase"]] += 1
+            return ToolCall("select_team", names=["X", "Y", "Z"])
+        return None
+    res, ev, sess = run_world(tmp_path, [MinSubject(post=None, on_turn=probe)], name="selphase", n_battles=1,
+                              levels=WEAK, budget=90, check=False)
+    led = [t for t in of(ev, "agent_turn", "a1") if t["phase"] == "ledger" and t["tool_call"]["tool"] == "select_team"]
+    dec = [t for t in of(ev, "agent_turn", "a1") if t["phase"] == "decision" and t["tool_call"]["tool"] == "select_team"]
+    assert len(led) == 1 and led[0]["result_text"] == swarm_prompts.R_SELECT_IN_LEDGER_PHASE and not led[0]["turn_ended"]
+    assert "ledger phase" in led[0]["result_text"] and "attest_ledger" in led[0]["result_text"]
+    assert len(dec) == 1 and dec[0]["result_text"] == solo_prompts.R_SELECT_WRONG_PHASE
+    assert of(ev, "attest", "a1", in_ledger_phase=True) and of(ev, "battle_end", "a1")[0]["attested"] is True

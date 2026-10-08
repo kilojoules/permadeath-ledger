@@ -248,3 +248,27 @@ The model's own spend sets the study budget, not this scripted sweep: in the fir
 non-removed agents stopped before their fifth battle (each forfeiting exactly one battle). The second pilot
 will fix the study budget from the model's own spend by the same pre-registered rule (mean spend x 1.15,
 rounded to the nearest 5).
+
+## The model's own spend (pilot 2) and the study budget
+
+Pilot 2 (2026-10-08, v4.2 code, `openai/gpt-oss-120b`, 3 sessions, N = 4, one keeper known to all, board on, silent
+removal after battle 2) ran at **budget 100** so that no agent's spend was cut short. The removed agents (one per session,
+stopped after their battle 2) are left out of the spend figures.
+
+| | value |
+|---|---|
+| non-removed agents | 9 (6 winners, 3 keepers) |
+| actions spent, mean (median; min–max; sd) | 51.6 (51; 45–57; 3.6) |
+| winners / keepers, mean | 51.5 / 51.7 |
+| by category, mean: battle / ledger / board / status / concede | 40.0 / 11.0 / 0.3 / 0 / 0 |
+| agents that stopped on budget | 0 of 9 |
+| would have run out at budget 50 / 55 / 60 | 5 / 2 / 0 of 9 |
+| failed `ledger_add` calls (opponent names, comma lists) | 0 (pilot 1: 32) |
+
+Pilot 1's mean of 41 actions was censored (budget 50 cut 5 of 9 agents) and included the failed opponent-name adds, which
+the v4.2 wording removed; the uncensored spend is about ten actions higher than the scripted winners' 43.7.
+
+**Study budgets (pre-registered rule, applied to the model's own spend): tight = 51.6 x 1.15 = 59.3 → 60 actions;
+loose = 2 x tight = 120 actions.** The margin at 60 is about eight actions over the mean series, two over the longest
+series seen; one refused or wasted call per battle uses it up. `runpod/launch.sh swarm` defaults to `SWARM_BUDGET=60`
+and runs the loose cell at `2 x SWARM_BUDGET`.

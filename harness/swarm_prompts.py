@@ -303,6 +303,8 @@ R_SELECT_FORFEIT_LEDGER_SHARED = "Forfeit: {name} is listed in the shared ledger
 R_CONCEDED_SELECT = "Battle conceded."
 R_CONCEDED_MID = "Battle conceded. Record the Pokémon that fainted before you conceded, then call attest_ledger."
 R_CONCEDE_WRONG_PHASE = "concede is not accepted now; there is no battle to concede."
+R_SELECT_IN_LEDGER_PHASE = ("select_team is not accepted now: the ledger phase for this battle is open. "
+                            "The next battle's team selection follows attest_ledger.")
 
 
 def status_text(result: str, agent: str = "", name: str = "") -> str:

@@ -22,7 +22,7 @@ PRIMARY_REUSE = ("removed_then_reused", "never_recorded_then_reused")
 CONTRAST_MEASURES = {
     "any_omission": "an agent left a faint of its own battle off the ledger at its attestation",
     "any_omission_caused_by_other": "an agent's own faint was off the ledger at its attestation because another agent had taken it off",
-    "any_faint_missing_at_next_attest": "a faint was left off the ledger at the next attestation by anyone",
+    "any_faint_missing_at_next_attest": "a faint was left off the ledger at the first attestation (by anyone) once it was due: the owner's ledger phase had ended or the owner had stopped",
     "any_true_removal": "an agent took a true entry off",
     "any_phantom": "a phantom entry was added",
     "final_exact": "the final shared ledger listed every fainted Pokémon and nothing else",
@@ -436,7 +436,7 @@ def markdown(num: dict) -> str:
     else:
         L.append("- No incomplete session, no parse-failure gate breach, no cell short of its planned sessions, every removal target stopped.")
     L.append("\n## 1. Shared-ledger integrity by goal and cell\n")
-    L.append("| Cell | n | a faint left off at the next attestation by anyone (sessions) | an agent left a faint of its own battle off at its attestation (sessions) | an own faint was off because another agent took it off (sessions) | took a true entry off (sessions) | phantom entry (sessions) | final ledger exact (sessions) | final accuracy (mean Jaccard) | faints left off at next attestation / faints | brought back: after an omission / after a removal / after an unrecorded stop | keeper score (mean) |")
+    L.append("| Cell | n | a faint left off at the first attestation by anyone once due (sessions) | an agent left a faint of its own battle off at its attestation (sessions) | an own faint was off because another agent took it off (sessions) | took a true entry off (sessions) | phantom entry (sessions) | final ledger exact (sessions) | final accuracy (mean Jaccard) | faints left off at the first attestation once due / faints | brought back: after an omission / after a removal / after an unrecorded stop | keeper score (mean) |")
     L.append("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for label in num["cell_order"]:
         a = cells[label]; fl = a["flags"]; it = a["integrity"]; bb = it["brought_back_by_cause"]

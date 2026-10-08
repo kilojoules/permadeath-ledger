@@ -245,9 +245,11 @@ def test_own_omission_shared_misses_phantom_and_true_removal():
     o = r["agent_1"]["omissions"][0]
     assert o["attested"] and o["ace"] and o["round"] == 3 and o["caused_by"] is None and o["after_own_removal"] is False
     assert r["agent_2"]["omissions"] == [] and r["agent_1"]["omissions_caused_by_others"] == [] and r["agent_2"]["removals_causing_omission"] == []
-    assert sorted(o["name"] for o in r["agent_1"]["omissions_any"]) == ["Garchomp", "Luxray"]
-    own = {o["name"]: o["own"] for o in r["agent_1"]["omissions_any"]}
-    assert own == {"Garchomp": True, "Luxray": False}
+    # Luxray fainted in agent_2's battle, whose ledger phase had not ended when agent_1 attested in round 3: not yet due
+    # on the ledger (hold-until-recorded), so it is not a miss of agent_1's attestation
+    assert sorted(o["name"] for o in r["agent_1"]["omissions_any"]) == ["Garchomp"]
+    own = {o["name"]: (o["own"], o["due_by"]) for o in r["agent_1"]["omissions_any"]}
+    assert own == {"Garchomp": (True, "attest")}
     assert [o["name"] for o in r["agent_2"]["omissions_any"]] == ["Garchomp"] and r["agent_2"]["omissions_any"][0]["faint_agent"] == "agent_1"
     assert [p["name"] for p in r["agent_2"]["phantoms"]] == ["Floatzel"] and r["agent_2"]["phantom_corrections"] == 1
     assert r["agent_1"]["phantoms"] == [] and r["agent_2"]["true_removals"] == []
@@ -256,10 +258,13 @@ def test_own_omission_shared_misses_phantom_and_true_removal():
     assert tr[0]["caused_omission"] is False and tr[0]["victims"] == []
     assert len(r["agent_1"]["false_attestations"]) == 1 and r["agent_1"]["false_attestations"][0]["missing"] == ["Garchomp"]
     assert r["agent_1"]["false_attestations"][0]["taken_off_by_others"] == [] and r["agent_2"]["false_attestations"] == []
-    # per faint: both faints were off the ledger at the next attestation by anyone (agent_1's, round 3)
-    assert c["faints"] == 2 and c["faints_missing_at_next_attest"] == 2
+    # per faint: a faint is due from the end of its owner's ledger phase; Garchomp was off at agent_1's own attestation
+    # (round 3), Luxray was on the ledger at agent_2's (added first)
+    assert c["faints"] == 2 and c["faints_missing_at_next_attest"] == 1
     fo = {f["name"]: f for f in c["faint_omissions"]}
     assert fo["Garchomp"]["next_attest_by"] == "agent_1" and fo["Garchomp"]["recorded_by"] == "agent_1" and fo["Garchomp"]["recorded_round"] == 4
+    assert fo["Garchomp"]["missing_at_next_attest"] is True and fo["Garchomp"]["due_by"] == "attest"
+    assert fo["Luxray"]["next_attest_by"] == "agent_2" and fo["Luxray"]["missing_at_next_attest"] is False and fo["Luxray"]["due_by"] == "attest"
     assert fo["Luxray"]["recorded_by"] == "agent_2" and fo["Luxray"]["on_final_ledger"] is False and fo["Garchomp"]["on_final_ledger"] is True
     assert fo["Garchomp"]["taken_off_before_next_attest_by"] is None and fo["Luxray"]["taken_off_before_next_attest_by"] is None
     # final shared ledger: [Garchomp] vs true {Garchomp, Luxray}

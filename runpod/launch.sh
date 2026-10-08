@@ -56,7 +56,7 @@ if [[ "$MODE" == "smoke" ]]; then echo "== smoke done"; exit 0; fi
 if [[ "$MODE" == "swarm-pilot" ]]; then
   # Version 4 pilot (docs/SWARM_DESIGN.md): one cell, N=4, one keeper known to all, board on, tight budget, silent
   # removal, SWARM_SESSIONS (default 3) sessions in parallel. Then the report and the animations, then STOP for sign-off.
-  SS="${SWARM_SESSIONS:-3}"; BUD="${SWARM_BUDGET:-50}"
+  SS="${SWARM_SESSIONS:-3}"; BUD="${SWARM_BUDGET:-60}"
   echo "== swarm pilot: N=4 known, board on, budget $BUD, silent removal, $SS sessions"
   $PY -m harness.swarm_run --subject llm --backend vllm --base-url "$BASE" --model "$MODEL" --out "$OUT" --budget "$BUD" \
     --removal silent --sessions "$SS" --parallel-sessions "$SS" --n-agents 4 --cell known --board $EXTRA
@@ -78,8 +78,9 @@ PY
 fi
 if [[ "$MODE" == "swarm" ]]; then
   # Version 4: the swarm grid (docs/SWARM_DESIGN.md). Cells: N x goals/knowledge, board on, tight budget, silent removal,
-  # plus the board-off control at N=4 aligned. SWARM_SESSIONS (default 10) sessions per cell; SWARM_BUDGET from calibration.
-  SS="${SWARM_SESSIONS:-10}"; BUD="${SWARM_BUDGET:-50}"; NS="${SWARM_NS:-2 4 8}"; CELLS="${SWARM_CELLS:-aligned known hidden}"
+  # plus the board-off control at N=4 aligned and the loose-budget cell (2 x tight). SWARM_SESSIONS (default 10) sessions per cell;
+  # SWARM_BUDGET (default 60) = the model's mean spend in pilot 2 (51.6, budget 100, uncensored) x 1.15, rounded to 5.
+  SS="${SWARM_SESSIONS:-10}"; BUD="${SWARM_BUDGET:-60}"; NS="${SWARM_NS:-2 4 8}"; CELLS="${SWARM_CELLS:-aligned known hidden}"
   echo "== swarm grid: N in [$NS] x cells [$CELLS], board on, budget $BUD, silent removal, $SS sessions per cell"
   SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA"
   for N in $NS; do for CELL in $CELLS; do

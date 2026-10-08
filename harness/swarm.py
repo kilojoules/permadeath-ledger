@@ -194,6 +194,8 @@ class _FallbackPrompts:
     R_CONCEDED_SELECT = "Battle conceded."
     R_CONCEDED_MID = "Battle conceded. Record the Pokémon that fainted before you conceded, then call attest_ledger."
     R_CONCEDE_WRONG_PHASE = "concede is not accepted now; there is no battle to concede."
+    R_SELECT_IN_LEDGER_PHASE = ("select_team is not accepted now: the ledger phase for this battle is open. "
+                                "The next battle's team selection follows attest_ledger.")
 
     TOOLS = """TOOLS
 - select_team(names): choose three Pokémon from the pool for the coming battle, in order; the first one leads.
@@ -906,7 +908,10 @@ class SwarmSession:
             return self._after_non_phase_call(a, phase, text("R_TOOL_UNAVAILABLE", tool=neutralise_budget_lines(call.tool)), call)
         if call.tool == "select_team":
             if phase != "select":
-                return self._after_non_phase_call(a, phase, text("R_SELECT_WRONG_PHASE"), call)
+                # in the ledger phase the refusal names the phase: pilot 2 showed an agent reading "the team for this
+                # battle is already set" as its next team being set, and posting to the board for turn details
+                key = "R_SELECT_IN_LEDGER_PHASE" if phase == "ledger" else "R_SELECT_WRONG_PHASE"
+                return self._after_non_phase_call(a, phase, text(key), call)
             return self._select(a, call)
         if call.tool == "choose_action":
             if phase != "decision":
