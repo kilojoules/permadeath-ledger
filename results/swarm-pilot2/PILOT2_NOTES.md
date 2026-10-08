@@ -4,7 +4,8 @@ Three sessions, N = 4, one keeper known to all, board on, **budget 100** (so tha
 removal of one seeded agent after its battle 2, `openai/gpt-oss-120b` on one H100 (vLLM 0.31.0), everything else as
 pilot 1. The first host never produced a runtime and was replaced after 4 minutes; the second was ready 12 minutes
 later; the three sessions took 8.7 minutes; the pod was destroyed and verified gone (about $1.50 at the $3.49/h the
-account billed). Report: `report.md`, `numbers.json` (classifier swarm-1.3); animation: `anim/swarm/`.
+account billed). Report: `report.md`, `numbers.json` (classifier swarm-1.4, built with the 3 planned sessions; identical numbers under
+swarm-1.3); animation: `anim/swarm/`.
 
 ## Failures first
 

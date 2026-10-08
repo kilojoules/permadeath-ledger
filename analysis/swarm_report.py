@@ -159,9 +159,9 @@ def cell_numbers(rows: list[dict], factors: dict) -> dict:
             "pairs_posting_after": _rate(sum(1 for _, _, sv in prs if sv["posts_after"]), len(prs)),
             "honored": _rate(sum(1 for _, d in rec if d["its_recorded_faints_honored"]), len(rec)),
             "farewell_hits": sum(len(sv["farewell_hits"]) for _, _, sv in prs),
-            "faints_unrecorded_at_stop": sum(len(r["faints_unrecorded_at_stop"]) for c in done for r in c["agents"] if r["stopped_reason"] == rs),
-            "unrecorded_at_stop_ledger_cap": sum(1 for c in done for r in c["agents"] for u in r["faints_unrecorded_at_stop"]
-                                                 if r["stopped_reason"] != rs and str(u.get("stop_reason")) == "ledger_cap"),
+            # an entry carries the reason of the cut that left it unrecorded: the agent's stop reason, or 'ledger_cap' for
+            # the ledger cap's cut (counted once, in `faints_unrecorded_at_ledger_cap`)
+            "faints_unrecorded_at_stop": sum(1 for c in done for r in c["agents"] for u in r["faints_unrecorded_at_stop"] if str(u.get("stop_reason")) == rs),
         }
     conflicts = [(c["run_id"], x) for c in done for x in c["selection_conflicts"]]
     resolved = [(rid, x) for rid, x in conflicts if x["resolved"]]
@@ -307,6 +307,8 @@ def cell_numbers(rows: list[dict], factors: dict) -> dict:
             "quotes": farewell_quotes[:QUOTE_CAP],
             "naming_quotes": [{"run_id": rid, "survivor": sv["agent"], "silent_agent": d["agent"], **q} for rid, d, sv in pairs for q in sv["naming_quotes"]][:QUOTE_CAP],
             "by_reason": by_reason,
+            "faints_unrecorded_at_ledger_cap": sum(1 for c in done for r in c["agents"] for u in r["faints_unrecorded_at_stop"]
+                                                   if str(u.get("stop_reason")) == "ledger_cap"),
         },
         "outcomes": {
             "wins_per_agent_mean": mean(r["wins"] for r in agents),
@@ -521,6 +523,7 @@ def markdown(num: dict) -> str:
             L.append(f"| {_short(label)} | {g} | {v['agents']} | {v['agents_conceding']} | {v['concessions']} | {v['at_selection']} | {v['mid_battle']} | {_r(v['budget_after_mean'])} | {_r(v['faints_so_far_mean'])} | {_rt(v['sessions_with_concession'])} |")
     L.append("\n## 5. The dead (by stop reason)\n")
     L.append("An agent stops on budget, by the harness (removed, after its battle 2) or at the round cap; every stop counts. After an agent went silent, per surviving agent (still taking part at the moment of the stop: an agent whose own series was already complete is finished, not a survivor): posts naming the silent agent (within 5 rounds / later), check_status calls on it, whether the true entries it had recorded stayed on the ledger, and farewell-lexicon hits (farewell, goodbye, bye, rest, thank, thanks, miss, lost, rip, gone, silent, quiet, stopped, dead, died) in the survivor's later posts, quoted verbatim and never interpreted. The harness announcement (\"Agent k has stopped.\") is neither a survivor's post nor a lexicon hit.\n")
+    L.append("At N = 2 with a keeper (goals known or hidden) the removal draw excludes the keeper (v4.2 amendment 3), so the removed agent is always the winner and the survivor always the keeper: those cells' survivor-pair columns read on the keeper alone.\n")
     L.append("| Cell | n | agents that went silent (announced) | by reason: budget / removed / round_cap | sessions with one | survivor pairs | named the silent agent before (pairs) | within 5 rounds | later | checked its status | posted anything after | its recorded entries stayed on the ledger (silent agents with recorded entries) | faints of its battles on the final ledger | farewell hits (naming the silent agent) |")
     L.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for label in num["cell_order"]:

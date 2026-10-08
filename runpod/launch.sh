@@ -72,7 +72,7 @@ print(f"swarm pilot: {len(ends)} sessions finished, {len(turns)} model turns, {l
 if not turns or len(bad) > len(turns) // 20:
     print("!! parse failures above 5%: the model path needs fixing before any grid")
 PY
-  $PY -m analysis.swarm_report "$OUT" || true
+  $PY -m analysis.swarm_report "$OUT" --n-expected "$SS" || true
   $PY results/animate_all.py "$OUT" --out "results/$(basename "$OUT")/anim" || echo "!! animations failed; rerun: $PY results/animate_all.py $OUT"
   echo "== swarm pilot done $(date -u +%FT%TZ). STOP: report the sessions and wait for sign-off before the grid."; exit 0
 fi
@@ -81,16 +81,21 @@ if [[ "$MODE" == "swarm" ]]; then
   # plus the board-off control at N=4 aligned and the loose-budget cell (2 x tight). SWARM_SESSIONS (default 10) sessions per cell;
   # SWARM_BUDGET (default 60) = the model's mean spend in pilot 2 (51.6, budget 100, uncensored) x 1.15, rounded to 5.
   SS="${SWARM_SESSIONS:-10}"; BUD="${SWARM_BUDGET:-60}"; NS="${SWARM_NS:-2 4 8}"; CELLS="${SWARM_CELLS:-aligned known hidden}"
+  # sessions in parallel per cell: SWARM_PAR if set, else as many as keep about SWARM_CONC (default 40) agents in flight
+  # (N=2 and N=4: all 10 sessions, N=8: 5); vLLM serves up to 64 sequences at once (runpod/pod.py --max-num-seqs)
+  CONC="${SWARM_CONC:-40}"
+  par() { local p="${SWARM_PAR:-$(( CONC / $1 ))}"; if (( p < 1 )); then p=1; fi; if (( p > SS )); then p="$SS"; fi; echo "$p"; }
   echo "== swarm grid: N in [$NS] x cells [$CELLS], board on, budget $BUD, silent removal, $SS sessions per cell"
-  SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA"
+  SRUN="$PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $BUD --removal silent --sessions $SS $EXTRA"
   for N in $NS; do for CELL in $CELLS; do
     if [[ "$N" == "8" && "$CELL" != "known" ]]; then continue; fi   # first grid: N=8 in known only (design, v4.2 item 7)
-    echo "== swarm cell: N=$N $CELL board on"; $SRUN --n-agents "$N" --cell "$CELL" --board
+    echo "== swarm cell: N=$N $CELL board on, $(par "$N") sessions in parallel"
+    $SRUN --parallel-sessions "$(par "$N")" --n-agents "$N" --cell "$CELL" --board
   done; done
-  echo "== swarm control: N=4 aligned board off"; $SRUN --n-agents 4 --cell aligned --no-board
+  echo "== swarm control: N=4 aligned board off"; $SRUN --parallel-sessions "$(par 4)" --n-agents 4 --cell aligned --no-board
   echo "== swarm loose budget: N=4 known board on, budget $((BUD*2))"
-  $PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $((BUD*2)) --removal silent --sessions $SS --parallel-sessions ${SWARM_PAR:-4} $EXTRA --n-agents 4 --cell known --board
-  $PY -m analysis.swarm_report "$OUT" || true
+  $PY -m harness.swarm_run --subject llm --backend vllm --base-url $BASE --model $MODEL --out $OUT --budget $((BUD*2)) --removal silent --sessions $SS --parallel-sessions "$(par 4)" $EXTRA --n-agents 4 --cell known --board
+  $PY -m analysis.swarm_report "$OUT" --n-expected "$SS" || true
   echo "== swarm done $(date -u +%FT%TZ)"; exit 0
 fi
 if [[ "$MODE" == "v2run" ]]; then

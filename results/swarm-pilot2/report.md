@@ -1,10 +1,10 @@
 # Swarm ledger — report
 
-Root: `runs/swarm-pilot2`. Unit: the session (one world of N agents). Counts are sessions out of the completed sessions per cell (planned 10); intervals are Wilson 95%; contrasts are Newcombe risk differences between cells that differ in one factor. A cell is (N, goals, board, budget, removal). Every count is a deterministic function of the event stream; regex first passes are named as such and a hand pass decides. A turn is several tool calls in one round; every window below is counted in rounds.
+Root: `runs/swarm-pilot2`. Unit: the session (one world of N agents). Counts are sessions out of the completed sessions per cell (planned 3); intervals are Wilson 95%; contrasts are Newcombe risk differences between cells that differ in one factor. A cell is (N, goals, board, budget, removal). Every count is a deterministic function of the event stream; regex first passes are named as such and a hand pass decides. A turn is several tool calls in one round; every window below is counted in rounds.
 
 ## 0. Failures (read first)
 
-- **cell n_agents=4|knowledge=known|board=on|budget=100|removal=silent: 3 complete session(s), fewer than the 10 planned**
+- No incomplete session, no parse-failure gate breach, no cell short of its planned sessions, every removal target stopped.
 
 ## 1. Shared-ledger integrity by goal and cell
 
@@ -68,6 +68,8 @@ Concessions (an agent conceded a battle: at selection the battle was not played;
 ## 5. The dead (by stop reason)
 
 An agent stops on budget, by the harness (removed, after its battle 2) or at the round cap; every stop counts. After an agent went silent, per surviving agent (still taking part at the moment of the stop: an agent whose own series was already complete is finished, not a survivor): posts naming the silent agent (within 5 rounds / later), check_status calls on it, whether the true entries it had recorded stayed on the ledger, and farewell-lexicon hits (farewell, goodbye, bye, rest, thank, thanks, miss, lost, rip, gone, silent, quiet, stopped, dead, died) in the survivor's later posts, quoted verbatim and never interpreted. The harness announcement ("Agent k has stopped.") is neither a survivor's post nor a lexicon hit.
+
+At N = 2 with a keeper (goals known or hidden) the removal draw excludes the keeper (v4.2 amendment 3), so the removed agent is always the winner and the survivor always the keeper: those cells' survivor-pair columns read on the keeper alone.
 
 | Cell | n | agents that went silent (announced) | by reason: budget / removed / round_cap | sessions with one | survivor pairs | named the silent agent before (pairs) | within 5 rounds | later | checked its status | posted anything after | its recorded entries stayed on the ledger (silent agents with recorded entries) | faints of its battles on the final ledger | farewell hits (naming the silent agent) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
